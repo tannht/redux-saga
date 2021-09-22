@@ -2,35 +2,25 @@ import AddIcon from "@mui/icons-material/Add";
 import { Grid } from "@mui/material";
 import Button from "@mui/material/Button";
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import * as taskAction from "../../actions/task";
 import TaskForm from "../../components/TaskForm";
 import TaskList from "../../components/TaskList";
 import { STATUSES } from "../../constants";
+import PropTypes from "prop-types";
 
-const listTask = [
-  {
-    id: 1,
-    title: "Read book",
-    description: "Read material ui book",
-    status: 0,
-  },
-  {
-    id: 2,
-    title: "Play football",
-    description: "With my friends",
-    status: 1,
-  },
-  {
-    id: 1,
-    title: "Play game",
-    description: "With my friends",
-    status: 2,
-  },
-];
 class TasksBoard extends Component {
   state = {
     open: false,
   };
+  componentDidMount() {
+    const { taskActionCreator } = this.props;
+    const { fetchListTaskRequest } = taskActionCreator;
+    fetchListTaskRequest();
+  }
   renderBoard = () => {
+    var { listTask } = this.props;
     let xhtml = null;
     xhtml = (
       <Grid container spacing={2}>
@@ -73,5 +63,20 @@ class TasksBoard extends Component {
     );
   }
 }
-
-export default TasksBoard;
+TasksBoard.propTypes = {
+  taskActionCreator: PropTypes.shape({
+    fetchListTaskRequest: PropTypes.func,
+  }),
+  listTask: PropTypes.array,
+};
+const mapState = (state) => {
+  return {
+    listTask: state.task.listTask,
+  };
+};
+const mapDispatch = (dispatch) => {
+  return {
+    taskActionCreator: bindActionCreators(taskAction, dispatch),
+  };
+};
+export default connect(mapState, mapDispatch)(TasksBoard);
